@@ -14,27 +14,27 @@ import jakarta.transaction.Transactional;
 public class TransferenciaServico {
 
 	@Autowired
-	private UsuarioRepositorio userRepository;
+	private UsuarioRepositorio usuarioRepositorio;
 
 	@Transactional
 	public void efetuarTransferencia(Long idPagador, Long idRecebedor, BigDecimal saldo) {
-		Usuario sender = userRepository.findById(idPagador)
+		Usuario pagador = usuarioRepositorio.findById(idPagador)
 				.orElseThrow(() -> new RuntimeException("Usuario pagador não encontrado."));
-		Usuario receiver = userRepository.findById(idRecebedor)
+		Usuario recebedor = usuarioRepositorio.findById(idRecebedor)
 				.orElseThrow(() -> new RuntimeException("Usuario recebedor não encontrado."));
 
-		if (!sender.enviarDinheiro()) {
-			throw new RuntimeException("User not allowed to send money");
+		if (!pagador.enviarDinheiro()) {
+			throw new RuntimeException("Usuario não pode enviar dinheiro.");
 		}
 
-		if (sender.getSaldo().compareTo(saldo) < 0) {
-			throw new RuntimeException("Insufficient funds");
+		if (pagador.getSaldo().compareTo(saldo) < 0) {
+			throw new RuntimeException("Saldo insuficiente.");
 		}
 
-		sender.setSaldo(sender.getSaldo().subtract(saldo));
-		receiver.setSaldo(receiver.getSaldo().add(saldo));
+		pagador.setSaldo(pagador.getSaldo().subtract(saldo));
+		recebedor.setSaldo(recebedor.getSaldo().add(saldo));
 
-		userRepository.save(sender);
-		userRepository.save(receiver);
+		usuarioRepositorio.save(pagador);
+		usuarioRepositorio.save(recebedor);
 	}
 }

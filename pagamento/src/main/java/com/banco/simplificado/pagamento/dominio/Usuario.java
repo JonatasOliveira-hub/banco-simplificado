@@ -2,6 +2,9 @@ package com.banco.simplificado.pagamento.dominio;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,6 +17,16 @@ import jakarta.persistence.Table;
 /*Entendo que por realizar operações, e ter identificadores,
  * é necessário persistir os valores dessa classe/entidade.
  */
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "tipo" // <- campo que virá no JSON
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = UsuarioComum.class, name = "COMUM"),
+        @JsonSubTypes.Type(value = Lojista.class, name = "LOJISTA")
+})
 @Entity
 @Table(name = "USUARIO")
 @Inheritance(strategy = InheritanceType.JOINED)
