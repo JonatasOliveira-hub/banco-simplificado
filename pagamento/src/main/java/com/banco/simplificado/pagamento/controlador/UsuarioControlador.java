@@ -26,7 +26,7 @@ public class UsuarioControlador {
 		return ResponseEntity.ok(usuarios);
 	}
 
-	// POST /usuarios — cadastra um novo usuário
+	//TODO Tratar o tipo de retorno para cpf ou email já existente 404/200 etc.
 	@PostMapping
 	public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody Usuario usuario) {
 		final Usuario novoUsuario = usuarioServico.cadastrarUsuario(usuario);

@@ -16,6 +16,7 @@ public class TransferenciaServico {
 	@Autowired
 	private UsuarioRepositorio usuarioRepositorio;
 
+	//TODO Fazer tratamento de exceção no pacote de exceção.
 	@Transactional
 	public void efetuarTransferencia(Long idPagador, Long idRecebedor, BigDecimal saldo) {
 		Usuario pagador = usuarioRepositorio.findById(idPagador)

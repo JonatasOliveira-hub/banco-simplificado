@@ -14,6 +14,7 @@ public class UsuarioServico {
 	@Autowired
 	private UsuarioRepositorio usuarioRepositorio;
 
+	//TODO Criar pacote para tratamento de exceções personalizadas.
 	public Usuario cadastrarUsuario(Usuario usuario) {
 
 		usuarioRepositorio.findByEmail(usuario.getEmail()).ifPresent(u -> {
@@ -28,7 +29,7 @@ public class UsuarioServico {
 	}
 	
 	public List<Usuario> listarUsuario(){
-		
+		//TODO Inserir paginação, caso a qtd de usuarios seja muito grande, sempre exibir 20 por vez.
 		return usuarioRepositorio.findAll();
 	}
 }
