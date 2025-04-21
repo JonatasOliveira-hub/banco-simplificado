@@ -3,6 +3,7 @@ package com.banco.simplificado.pagamento.controlador;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.banco.simplificado.pagamento.dominio.Usuario;
+import com.banco.simplificado.pagamento.dominio.excecao.usuario.CpfCnpjExistenteExcecao;
+import com.banco.simplificado.pagamento.dominio.excecao.usuario.EmailExistenteExcecao;
 import com.banco.simplificado.pagamento.servico.UsuarioServico;
 
 @RestController
@@ -26,10 +29,17 @@ public class UsuarioControlador {
 		return ResponseEntity.ok(usuarios);
 	}
 
-	//TODO Tratar o tipo de retorno para cpf ou email já existente 404/200 etc.
 	@PostMapping
-	public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody Usuario usuario) {
-		final Usuario novoUsuario = usuarioServico.cadastrarUsuario(usuario);
-		return ResponseEntity.ok(novoUsuario);
+	public ResponseEntity<?> cadastrarUsuario(@RequestBody Usuario usuario) {
+		try {
+
+			final Usuario novoUsuario = usuarioServico.cadastrarUsuario(usuario);
+			return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
+
+		} catch (CpfCnpjExistenteExcecao | EmailExistenteExcecao e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+
+		}
 	}
+
 }
