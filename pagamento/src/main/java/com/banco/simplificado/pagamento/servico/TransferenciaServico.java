@@ -6,9 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.banco.simplificado.pagamento.dominio.Usuario;
+import com.banco.simplificado.pagamento.dominio.excecao.transferencia.SaldoInsuficienteExcecao;
+import com.banco.simplificado.pagamento.dominio.excecao.transferencia.UsuarioLojistaExececao;
+import com.banco.simplificado.pagamento.dominio.excecao.transferencia.UsuarioNaoEncontradoExececao;
 import com.banco.simplificado.pagamento.persistencia.UsuarioRepositorio;
 
 import jakarta.transaction.Transactional;
+import reactor.core.publisher.Mono;
 
 @Service
 public class TransferenciaServico {
@@ -16,28 +20,40 @@ public class TransferenciaServico {
 	@Autowired
 	private UsuarioRepositorio usuarioRepositorio;
 
-	/*TODO Fazer tratamento de exceção no pacote de exceção. 
-	 * Utilizar @TransactionalEventListener para consultar a API externa.
+	@Autowired
+	private AutorizaTransferenciaServico autorizador;
+
+	/*
+	 * TODO * Utilizar @TransactionalEventListener para enviar a notificação com POST.
 	 */
 	@Transactional
-	public void efetuarTransferencia(Long idPagador, Long idRecebedor, BigDecimal saldo) {
+	public void realizarTransferencia(Long idPagador, Long idRecebedor, BigDecimal saldo) {
 		Usuario pagador = usuarioRepositorio.findById(idPagador)
-				.orElseThrow(() -> new RuntimeException("Usuario pagador não encontrado."));
+				.orElseThrow(() -> new UsuarioNaoEncontradoExececao("Usuario pagador de ID: " + idPagador + " não encontrado."));
 		Usuario recebedor = usuarioRepositorio.findById(idRecebedor)
-				.orElseThrow(() -> new RuntimeException("Usuario recebedor não encontrado."));
+				.orElseThrow(() -> new UsuarioNaoEncontradoExececao("Usuario recebedor de ID: "+ idRecebedor + " não encontrado."));
 
 		if (!pagador.enviarDinheiro()) {
-			throw new RuntimeException("Usuario não pode enviar dinheiro.");
+			throw new UsuarioLojistaExececao("Usuario do tipo Lojista: " + idPagador + " não pode enviar dinheiro.");
 		}
 
 		if (pagador.getSaldo().compareTo(saldo) < 0) {
-			throw new RuntimeException("Saldo insuficiente.");
+			throw new SaldoInsuficienteExcecao("Usuario Pagador com ID: " + idPagador +" não tem saldo suficiente." );
 		}
 
 		pagador.setSaldo(pagador.getSaldo().subtract(saldo));
 		recebedor.setSaldo(recebedor.getSaldo().add(saldo));
 
-		usuarioRepositorio.save(pagador);
-		usuarioRepositorio.save(recebedor);
+		final Mono<Boolean> verificarAutorizacao = autorizador.verificarAutorizacao();
+		verificarAutorizacao.subscribe(autorizado -> {
+			if (!autorizado) {
+				throw new RuntimeException("API externa não autorizou a Transferência.");
+			} else {
+				System.out.println("Tranferência autorizada!!");
+				usuarioRepositorio.save(pagador);
+				usuarioRepositorio.save(recebedor);
+			}
+		});
+
 	}
 }

@@ -8,7 +8,6 @@ public class Lojista extends Usuario{
 
 	@Override
 	public boolean enviarDinheiro() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

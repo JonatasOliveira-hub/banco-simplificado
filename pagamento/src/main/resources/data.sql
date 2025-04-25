@@ -5,7 +5,7 @@ VALUES
 ('Loja Roupas', '33333333000103', 'lojaroupas@exemplo.com', 'senha123', 800.00),
 ('Loja Pet', '44444444000104', 'lojapet@exemplo.com', 'senha123', 600.00),
 ('Loja Café', '55555555000105', 'lojacafe@exemplo.com', 'senha123', 1200.00),
-('João Silva', '12345678900', 'joao@exemplo.com', 'senha123', 500.00),
+('João Silva', '12345678900', 'joao@exemplo.com', 'senha123', 00.00),
 ('Maria Oliveira', '23456789011', 'maria@exemplo.com', 'senha123', 750.00),
 ('Carlos Souza', '34567890122', 'carlos@exemplo.com', 'senha123', 300.00),
 ('Ana Lima', '45678901233', 'ana@exemplo.com', 'senha123', 1200.00),
