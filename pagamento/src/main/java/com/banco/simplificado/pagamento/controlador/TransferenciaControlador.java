@@ -27,7 +27,7 @@ public class TransferenciaControlador {
 
 		try {
 			transfereciaServico.realizarTransferencia(pagadorId, recebedorId, valor);
-			return ResponseEntity.status(HttpStatus.CREATED).body("Transferência realizada com sucesso");
+			return ResponseEntity.status(HttpStatus.OK).body("Transferência realizada com sucesso");
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}

@@ -3,6 +3,8 @@ package com.banco.simplificado.pagamento.servico;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.banco.simplificado.pagamento.servico.TransferenciaServico.ConsultaApiExterna;
+
 import reactor.core.publisher.Mono;
 
 @Service
@@ -16,20 +18,10 @@ public class AutorizaTransferenciaServico {
 	
 	public Mono<Boolean> verificarAutorizacao() {
         return webClient.get()
-               .uri("/authorize")
+               .uri("/autorizar")
                .retrieve()
-               .bodyToMono(AutorizacaoTransferenciaResponse.class)
+               .bodyToMono(ConsultaApiExterna.class)
                .map(resp -> resp.data().authorization())
                .onErrorReturn(false); // se der erro, considera não autorizado
-    }
-	
-	/*Utilizando Record java+17 para não criar mais classe de dominio.
-	 * 
-	 * TODO Utilizar também para recebimento de pagamento.*/
-	private record AutorizacaoTransferenciaResponse(
-		    String status,
-		    Data data
-		) {
-		    public record Data(boolean authorization) {}
-		}
+    }	
 }
