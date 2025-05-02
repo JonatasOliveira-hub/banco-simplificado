@@ -18,6 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.banco.simplificado.pagamento.dominio.Usuario;
 import com.banco.simplificado.pagamento.dominio.UsuarioComum;
+import com.banco.simplificado.pagamento.dominio.excecao.usuario.CpfCnpjExistenteExcecao;
 import com.banco.simplificado.pagamento.dominio.excecao.usuario.EmailExistenteExcecao;
 import com.banco.simplificado.pagamento.persistencia.UsuarioRepositorio;
 import com.banco.simplificado.pagamento.servico.UsuarioServico;
@@ -37,7 +38,7 @@ public class CadastroUsuarioTeste {
 
 		@Test
 		@DisplayName("Verificando duplicidade de e-mail.")
-		void naoDeveCadastrarUsuario() {
+		void naoDeveCadastrarUsuarioPorDuplicidadeEmail() {
 
 			// Arrange
 			Usuario input = new UsuarioComum();
@@ -51,7 +52,6 @@ public class CadastroUsuarioTeste {
 			Optional <Usuario> optUser = Optional.of(input);
 	        when(usuarioRepositorio.findByEmail("maria@email.com")).thenReturn(optUser);
 			doReturn(input).when(usuarioRepositorio).save(any());
-			//usuarioServico.cadastrarUsuario(input);
 			
 			Usuario usuarioEmailDuplicado = new UsuarioComum();
 			usuarioEmailDuplicado.setCpfCnpj("123445678");
@@ -63,6 +63,35 @@ public class CadastroUsuarioTeste {
 			
 			// Act e Assert - Retornando exceção correta em  caso de e-mail existente
 			assertThrows(EmailExistenteExcecao.class,() -> usuarioServico.cadastrarUsuario(usuarioEmailDuplicado));
+		}
+		
+		@Test
+		@DisplayName("Verificando duplicidade de CPF/CNPJ.")
+		void naoDeveCadastrarUsuarioPorDuplicidadeCPFCNPJ() {
+
+			// Arrange
+			Usuario input = new UsuarioComum();
+			input.setCpfCnpj("11111111111");
+			input.setEmail("maria@email.com");
+			input.setId(1L);
+			input.setNomeCompleto("Maria da Silva");
+			input.setSaldo(new BigDecimal("1000.00"));
+			input.setSenha("123456");
+			
+			Optional <Usuario> optUser = Optional.of(input);
+	        when(usuarioRepositorio.findByCpfCnpj("11111111111")).thenReturn(optUser);
+			doReturn(input).when(usuarioRepositorio).save(any());
+			
+			Usuario usuarioEmailDuplicado = new UsuarioComum();
+			usuarioEmailDuplicado.setCpfCnpj("11111111111");
+			usuarioEmailDuplicado.setEmail("jonatas@email.com");
+			usuarioEmailDuplicado.setId(1L);
+			usuarioEmailDuplicado.setNomeCompleto("Jonatas Oliveira");
+			usuarioEmailDuplicado.setSaldo(new BigDecimal("1000.00"));
+			usuarioEmailDuplicado.setSenha("123456");
+			
+			// Act e Assert - Retornando exceção correta em  caso de e-mail existente
+			assertThrows(CpfCnpjExistenteExcecao.class,() -> usuarioServico.cadastrarUsuario(usuarioEmailDuplicado));
 		}
 
 	}
